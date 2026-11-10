@@ -1,43 +1,50 @@
-# Current task: Homelab Monitor, stage 1b - DOWN lines
+# Current task: Homelab Monitor, stage 1c - bad lines raise ValueError
 
-A DOWN line has `-` where the latency would be:
-
-```
-2026-11-01 12:05:01 pihole DOWN -
-```
-
-`parse_line` must return `latency_ms` as `None` for these. Today `int("-")` crashes.
+Real logs contain junk: empty lines, half-written lines, corrupted lines. Right now `parse_line("")` crashes with `IndexError`, which says nothing useful. Check the line first, and raise a clear error yourself.
 
 ## Short lesson
 
-Check the piece before you convert it:
-
 ```python
-# a different problem
-def parse_score(text):
-    if text == "n/a":
-        return None
-    return int(text)
+# different problems
+def parse_pair(text):
+    parts = text.split()
+    if len(parts) != 2:
+        raise ValueError(f"expected 2 parts, got {len(parts)}: {text!r}")
+    return parts
 
-parse_score("42")    # 42
-parse_score("n/a")   # None
+def pick_colour(name):
+    if name not in ("red", "green", "blue"):
+        raise ValueError(f"unknown colour: {name!r}")
+    return name
 ```
 
-`None` is Python's "no value". The check comes first, and the conversion only runs for pieces that really are numbers.
+- `raise ValueError("message")` stops the function immediately and reports the problem.
+- `len(parts)` counts the pieces.
+- `x in (a, b, c)` checks whether `x` is one of several allowed values.
+- `raise` stops the function, so the check goes **before** the code that would crash.
 
 ## Your task
 
-Update `parse_line` in `homelab_monitor/stage1.py` so DOWN lines work. UP lines must keep working.
+Update `parse_line` in `homelab_monitor/stage1.py` so it raises `ValueError` when:
+- the line is empty or has the wrong number of pieces,
+- the status is not `UP` or `DOWN`,
+- an `UP` line has no number for latency (`UP -`, `UP abc`),
+- a `DOWN` line has anything but `-` for latency (`DOWN 12`).
 
-`tests/test_stage1b.py` is the spec. Don't edit it.
+Valid lines behave exactly as before. Also use a helpful error message (it must not be empty).
+
+`tests/test_stage1c.py` is the spec. Don't edit it.
 
 ```
-python -m pytest tests/test_stage1b.py
+python -m pytest tests/test_stage1c.py
 python -m pytest
 ```
 
 When it passes, say "done" and I'll check your code.
 
+## Also
+Clean up the `str()` calls and the `timestamp1`/`timestamp2` names while you are in there.
+
 ## Coming up
-- 1c: lines that don't fit the format (empty or garbage) raise `ValueError`
-- 1d: `is_up` and `format_entry`
+- 1d: `is_up` and `format_entry`. That finishes stage 1.
+- Stage 2: summarising many entries at once.

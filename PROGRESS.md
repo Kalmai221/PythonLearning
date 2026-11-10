@@ -22,7 +22,8 @@
 
 | 2026-11-10 | 0 | Status Board | - | - | `return` ends a function; `return` inside a loop is valid but exits on first pass | Waived at user request | CLEARED (tests pass; concept to revisit) |
 | 2026-11-10 | 1 / 1a | parse_line (UP lines) | 2 | 3 (outline) | Used `global` state; mixed up dict key/value; looped over data that did not line up with names; redundant `str()` | n/a | CLEARED (4 tests pass) |
-| 2026-11-10 | 1 / 1b | parse_line (DOWN lines) | 0 | - | - | n/a | assigned |
+| 2026-11-10 | 1 / 1b | parse_line (DOWN lines) | 1 | - | Keyed on status instead of the `-` itself (`UP -` crashes, `DOWN 12` silently drops data); redundant `str()` and numbered names left in after review | n/a | CLEARED (17 tests pass) |
+| 2026-11-10 | 1 / 1c | parse_line (bad lines raise ValueError) | 0 | - | - | n/a | assigned |
 
 ## Preferences
 - 2026-11-10: User does not want to be quizzed. Workflow is: short lesson, coding task, review of code. No explanation gate.
